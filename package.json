@@ -1,0 +1,14 @@
+{
+  "name": "slack-rock-paper-scissors",
+  "version": "0.1.0",
+  "description": "A colourful, dependency-free Rock Paper Scissors game for Slack, with an offline browser demo.",
+  "license": "UNLICENSED",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node slack-rps.js",
+    "test": "node --test",
+    "check": "node --check slack-rps.js"
+  },
+  "repository": { "type": "git", "url": "https://github.com/ezzye/Rock_Paper_Scissors_Game2.git" },
+  "bugs": { "url": "https://github.com/ezzye/Rock_Paper_Scissors_Game2/issues" }
+}

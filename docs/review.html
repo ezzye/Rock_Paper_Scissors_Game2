@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Review and release notes for the dependency-free Rock Paper Scissors Slack game.">
+<title>Rock • Paper • Scissors — review and release notes</title>
+<style>
+:root{color-scheme:dark;--bg:#111028;--panel:#211d3b;--line:#51476b;--text:#f7f4ff;--muted:#d3c9e6;--green:#8ce0b2;--amber:#fcd48a;--purple:#d0b6ff}
+*{box-sizing:border-box}body{margin:0;color:var(--text);background:radial-gradient(ellipse at top left,#3f2367,transparent 55%),var(--bg);font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:1040px;margin:auto;padding:48px 24px}header{padding-bottom:24px;border-bottom:1px solid var(--line)}.eyebrow{font-size:13px;color:var(--purple);letter-spacing:.09em;text-transform:uppercase;font-weight:700}h1{font-size:clamp(29px,5vw,47px);line-height:1.15;letter-spacing:-.025em;margin:12px 0 18px}h2{font-size:23px;line-height:1.3;margin:32px 0 14px}p{margin:10px 0}.intro{max-width:760px;font-size:19px;color:var(--muted)}.meta{color:var(--muted);font-size:14px}.badge{display:inline-block;padding:4px 11px;border:1px solid #92764b;background:#332a25;border-radius:30px;color:var(--amber);font-size:13px;font-weight:700}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:24px 0}.metric{padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:16px}.metric strong{display:block;font-size:29px;line-height:1.2;color:var(--green)}.metric span{display:block;font-size:14px;color:var(--muted);margin-top:7px}.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:15px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:#32294a;color:#e5d6ff;font-size:13px}tr:last-child td{border-bottom:0}td:first-child{font-weight:700;width:20%}td:nth-child(2){color:var(--muted);width:36%}td:nth-child(3){width:44%}.notes{display:grid;grid-template-columns:1fr 1fr;gap:16px}.note{padding:20px;background:var(--panel);border:1px solid var(--line);border-radius:14px}.note h3{margin:0 0 9px;font-size:17px}.note p{font-size:14px;color:var(--muted)}code{font-size:.9em;padding:2px 5px;background:#100f20;border-radius:4px}a{color:#dcc3ff;text-underline-offset:3px;overflow-wrap:anywhere}.tools{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 8px}button{font:inherit;font-weight:650;background:#7045ad;color:white;border:1px solid #c3a0f1;border-radius:10px;padding:10px 17px;min-height:44px;cursor:pointer;touch-action:manipulation}button:hover{background:#8356c1}button:focus-visible,a:focus-visible{outline:3px solid white;outline-offset:4px}.small{font-size:13px;color:var(--muted)}footer{margin-top:30px;border-top:1px solid var(--line);padding-top:18px}#share-status{min-height:3.3em}.sources{font-size:14px}.sources li{margin:7px 0}@media(max-width:650px){main{padding:28px 16px}.metrics{grid-template-columns:1fr;gap:10px}.metric{padding:15px}.metric strong{font-size:24px}.notes{grid-template-columns:1fr}th,td{padding:11px}.table-wrap table{min-width:590px}}@media print{body{background:white;color:#171322}main{max-width:none;padding:0}.intro,.meta,.small,.metric span,.note p,td:nth-child(2){color:#333}.metric,.note,th{background:#f4effb;color:#171322}.metric strong,a{color:#4a2376}.tools,#share-status{display:none}.table-wrap{overflow:visible}.table-wrap table{min-width:0}.note,tr{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+<header>
+<div class="eyebrow">Code review · release preparation</div>
+<h1><span aria-hidden="true">🪨 📄 ✂️</span><br>Rock • Paper • Scissors</h1>
+<p class="intro">A small Slack game, reviewed before its public release: the bot’s move now stays on the server, rounds belong to their player, and button results use Slack’s message-delivery flow.</p>
+<p class="meta">9 November 2026 · Dependency-free Node.js server · Offline browser demo</p>
+<p><span class="badge">Local review complete</span></p>
+<p class="small">Public repository: <a href="https://github.com/ezzye/Rock_Paper_Scissors_Game2">ezzye/Rock_Paper_Scissors_Game2</a>. This report records local review and checks. Repository publication and deployment are separate from the test results below.</p>
+</header>
+<div class="metrics" aria-label="Verification snapshot">
+<div class="metric"><strong>35 / 35</strong><span>Node tests passed locally on Node 26, using in-process request/response streams.</span></div>
+<div class="metric"><strong>22 + 24</strong><span>Node versions configured in CI, for memory and HTTP transports. CI has not run yet.</span></div>
+<div class="metric"><strong>0</strong><span>Runtime dependencies. The browser demo also needs no network assets.</span></div>
+</div>
+<section aria-labelledby="findings"><h2 id="findings">What the review changed</h2>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Review findings, scroll horizontally on a narrow screen">
+<table><thead><tr><th scope="col">Finding</th><th scope="col">Before</th><th scope="col">Fixed</th></tr></thead><tbody>
+<tr><td>Known default signing secret</td><td>The server started with a published development secret when no environment secret was supplied.</td><td>Startup rejects missing, blank or known-default secrets. Configuration uses the app’s own signing secret.</td></tr>
+<tr><td>Plaintext bot move</td><td>Button values disclosed the supposedly hidden move; an HMAC did not conceal it.</td><td>The move remains in server memory. Buttons carry an unpredictable round ID and the player’s choice.</td></tr>
+<tr><td>Reusable, unscoped tokens</td><td>Tokens could be reused and did not bind play to a specific player, workspace, channel or expiry.</td><td>Rounds are bound to all three identities, expire after ten minutes and are consumed once.</td></tr>
+<tr><td>Malformed interaction crashes</td><td>Unexpected JSON shapes and non-string action values could reach unchecked operations.</td><td>Payload and action validation, controlled errors, request-body limits and regression coverage guard the route.</td></tr>
+<tr><td>Non-numeric timestamps</td><td>A non-numeric timestamp could escape the age check through a <code>NaN</code> comparison.</td><td>Timestamp and signature formats are checked before the five-minute window and constant-time signature comparison.</td></tr>
+<tr><td>Block Kit results in ACK only</td><td>The result was returned in the interaction acknowledgement, without the required message update flow.</td><td>The handler acknowledges promptly, then posts the update to a validated Slack <code>response_url</code>.</td></tr>
+<tr><td>Missing tests, docs and accessibility</td><td>No automated suite; setup and operational limits were incomplete; browser results lacked live announcements.</td><td>Regression tests, CI configuration, setup notes and limits; visible focus, live results, reduced-motion support and HTML save/share controls.</td></tr>
+</tbody></table></div></section>
+<section aria-labelledby="evidence"><h2 id="evidence">Evidence and remaining checks</h2><div class="notes">
+<article class="note"><h3>Local checks passed</h3><p>All 35 Node tests passed on Node 26. They cover game outcomes, signature checks, move secrecy, ownership, expiry, single use, malformed requests, body limits and delivery failures.</p><p>The test transport uses real Node request/response streams in process. A local socket listener was blocked by the execution environment, so local HTTP socket tests remain unverified.</p></article>
+<article class="note"><h3>Checks still required</h3><p>No live Slack workspace installation or end-to-end message delivery has been tested. CI is configured for Node 22 and 24 with both memory and HTTP transports, but has not run at the time of writing.</p><p>Browser game and save/share branches passed JavaScript VM checks. Browser file-URL policy blocked opening the demo for visual and actual offline-download checks; those checks remain unverified.</p></article>
+</div></section>
+<section aria-labelledby="operations"><h2 id="operations">Run it as a small, single-process app</h2><p>Pending rounds live in memory for ten minutes, with a maximum of 10,000. Restarting invalidates them. Run one process; multiple instances need shared state or suitable routing.</p><p>A played round is consumed before its message update is delivered. If delivery fails, start again with <code>/rps</code>. The game has no persistent Slack scores and assumes the server chooses fairly.</p></section>
+<section aria-labelledby="sources"><h2 id="sources">Slack references</h2><ul class="sources"><li><a href="https://docs.slack.dev/authentication/verifying-requests-from-slack/">Verifying requests from Slack</a> — signing secret, raw-body verification and timestamp checks.</li><li><a href="https://docs.slack.dev/interactivity/handling-user-interaction/">Handling user interaction</a> — acknowledgement and response-URL message updates.</li></ul></section>
+<footer><h2>Save or share this report</h2><p>Use <strong>Save HTML</strong>, then attach <strong>rock-paper-scissors-review.html</strong> to a message or email. The recipient can download it and open it in a browser; it works offline.</p><p class="small"><strong>Share file</strong> opens native file sharing where supported. Some browsers and devices do not support sharing HTML files; the fallback requests a download for you to attach manually. Nothing is uploaded or published by these buttons.</p><div class="tools"><button type="button" id="save-html">Save HTML</button><button type="button" id="share-file">Share file</button></div><p id="share-status" class="small" role="status" aria-live="polite">Share the HTML file itself, rather than a local file-path link.</p><noscript><p>Use your browser’s Save Page command to save this report, then attach the HTML file.</p></noscript></footer>
+</main>
+<script>
+function reportFile() {
+  const copy = document.documentElement.cloneNode(true);
+  copy.querySelector('#share-status').textContent = 'Share the HTML file itself, rather than a local file-path link.';
+  return new File(['<!doctype html>\n' + copy.outerHTML], 'rock-paper-scissors-review.html', { type: 'text/html' });
+}
+function download(file) {
+  const url = URL.createObjectURL(file);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = file.name;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+const shareStatus = document.getElementById('share-status');
+document.getElementById('save-html').addEventListener('click', () => {
+  download(reportFile());
+  shareStatus.textContent = 'HTML download requested. Attach the downloaded file to a message or email.';
+});
+document.getElementById('share-file').addEventListener('click', async () => {
+  const file = reportFile();
+  try {
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Rock • Paper • Scissors — review' });
+      shareStatus.textContent = 'File passed to your device’s sharing service.';
+      return;
+    }
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      shareStatus.textContent = 'Sharing cancelled. You can still use Save HTML.';
+      return;
+    }
+  }
+  download(file);
+  shareStatus.textContent = 'This browser could not share the file directly. HTML download requested; attach it to a message or email.';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rock • Paper • Scissors</title>
+  <style>
+    :root {
+      --bg1: #1b1035;
+      --bg2: #3b1d63;
+      --card: rgba(255, 255, 255, 0.09);
+      --line: rgba(255, 255, 255, 0.18);
+      --text: #f8f5ff;
+      --rock: #f59e0b;
+      --paper: #38bdf8;
+      --scissors: #f472b6;
+      --win: #22c55e;
+      --lose: #ef4444;
+      --tie: #fbbf24;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, #7c3aed 0%, transparent 45%),
+        radial-gradient(circle at 85% 90%, #ec4899 0%, transparent 40%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+    }
+
+    .game {
+      width: min(560px, 100%);
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: 28px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(22px, 4vw, 30px);
+      letter-spacing: 0.5px;
+    }
+
+    .sub {
+      margin: 0 0 22px;
+      opacity: 0.75;
+      font-size: 14px;
+    }
+
+    .moves {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .move {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px 12px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      font: inherit;
+      cursor: pointer;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .move:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.12); }
+    .move:active { transform: translateY(0); }
+    button:focus-visible { outline: 3px solid #fff; outline-offset: 5px; }
+    button { touch-action: manipulation; }
+    @media (prefers-reduced-motion: reduce) {
+      .move { transition: none; }
+      .move:hover { transform: none; }
+    }
+
+    .move .emoji { display: block; font-size: 38px; line-height: 1; margin-bottom: 8px; }
+    .move .name { font-size: 14px; font-weight: 600; }
+
+    #rock { border-color: var(--rock); box-shadow: inset 0 -3px 0 var(--rock); }
+    #paper { border-color: var(--paper); box-shadow: inset 0 -3px 0 var(--paper); }
+    #scissors { border-color: var(--scissors); box-shadow: inset 0 -3px 0 var(--scissors); }
+
+    .result {
+      margin-top: 18px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.07);
+      border-left: 6px solid var(--tie);
+      min-height: 70px;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .result.win { border-left-color: var(--win); background: rgba(34, 197, 94, 0.16); }
+    .result.lose { border-left-color: var(--lose); background: rgba(239, 68, 68, 0.16); }
+    .result.tie { border-left-color: var(--tie); background: rgba(251, 191, 36, 0.14); }
+
+    .headline { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .picks { opacity: 0.8; }
+
+    .score {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .score span {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hint { margin-top: 14px; font-size: 12px; color: #e4daf3; line-height: 1.6; }
+    .tools { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .tool {
+      min-height: 44px; padding: 10px 14px; border-radius: 10px;
+      border: 1px solid var(--line); background: #35204f; color: var(--text);
+      font: inherit; font-size: 14px; cursor: pointer;
+    }
+    #share-status { min-height: 2.6em; margin-bottom: 0; }
+    @media (max-width: 380px) {
+      body { padding: 12px; }
+      .game { padding: 20px 14px; }
+      .moves { gap: 8px; }
+      .move { padding: 16px 4px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <h1>🎮 Rock • Paper • Scissors</h1>
+    <p class="sub">Pick a move. 🪨 beats ✂️, ✂️ beats 📄, 📄 beats 🪨.</p>
+
+    <div class="moves">
+      <button type="button" class="move" id="rock" data-move="rock">
+        <span class="emoji" aria-hidden="true">🪨</span>
+        <span class="name">Rock</span>
+      </button>
+      <button type="button" class="move" id="paper" data-move="paper">
+        <span class="emoji" aria-hidden="true">📄</span>
+        <span class="name">Paper</span>
+      </button>
+      <button type="button" class="move" id="scissors" data-move="scissors">
+        <span class="emoji" aria-hidden="true">✂️</span>
+        <span class="name">Scissors</span>
+      </button>
+    </div>
+
+    <div class="result" id="result" role="status" aria-live="polite" aria-atomic="true">Choose a move to play…</div>
+
+    <div class="score">
+      <span id="wins">Wins: 0</span>
+      <span id="losses">Losses: 0</span>
+      <span id="ties">Ties: 0</span>
+    </div>
+
+    <p class="hint">This is the browser preview. In Slack the same game runs as /rps with emoji buttons. Scores reset when this file is reopened.</p>
+    <div class="tools" aria-label="Save and share this game">
+      <button type="button" class="tool" id="save-html">Save HTML</button>
+      <button type="button" class="tool" id="share-file">Share file</button>
+    </div>
+    <p class="hint" id="share-status" role="status" aria-live="polite">Play offline. To share, send the HTML file as an attachment.</p>
+    <noscript><p>This game needs JavaScript enabled. It runs entirely in your browser.</p></noscript>
+  </main>
+
+  <script>
+    const MOVES = ["rock", "paper", "scissors"];
+    const LABEL = { rock: "🪨 Rock", paper: "📄 Paper", scissors: "✂️ Scissors" };
+    const BEATS = { rock: "scissors", paper: "rock", scissors: "paper" };
+
+    const resultEl = document.getElementById("result");
+    let wins = 0, losses = 0, ties = 0;
+
+    function play(user) {
+      if (!MOVES.includes(user)) return;
+      const bot = MOVES[Math.floor(Math.random() * MOVES.length)];
+      let outcome;
+      if (user === bot) outcome = "tie";
+      else if (BEATS[user] === bot) outcome = "win";
+      else outcome = "lose";
+
+      if (outcome === "win") wins++;
+      else if (outcome === "lose") losses++;
+      else ties++;
+
+      const headline = outcome === "win"
+        ? `🎉 You win! ${LABEL[user]} beats ${LABEL[bot]}.`
+        : outcome === "lose"
+        ? `💥 Bot wins! ${LABEL[bot]} beats ${LABEL[user]}.`
+        : `🤝 It's a tie! Both chose ${LABEL[user]}.`;
+
+      resultEl.className = `result ${outcome}`;
+      resultEl.innerHTML = `
+        <div class="headline">${headline}</div>
+        <div class="picks">You: ${LABEL[user]} &nbsp;•&nbsp; Bot: ${LABEL[bot]}</div>
+      `;
+
+      document.getElementById("wins").textContent = `Wins: ${wins}`;
+      document.getElementById("losses").textContent = `Losses: ${losses}`;
+      document.getElementById("ties").textContent = `Ties: ${ties}`;
+    }
+
+    document.querySelectorAll(".move").forEach((btn) => {
+      btn.addEventListener("click", () => play(btn.dataset.move));
+    });
+
+    function gameFile() {
+      const copy = document.documentElement.cloneNode(true);
+      copy.querySelector("#result").className = "result";
+      copy.querySelector("#result").textContent = "Choose a move to play…";
+      copy.querySelector("#wins").textContent = "Wins: 0";
+      copy.querySelector("#losses").textContent = "Losses: 0";
+      copy.querySelector("#ties").textContent = "Ties: 0";
+      copy.querySelector("#share-status").textContent = "Play offline. To share, send the HTML file as an attachment.";
+      return new File(["<!doctype html>\n" + copy.outerHTML], "rock-paper-scissors.html", { type: "text/html" });
+    }
+
+    function download(file) {
+      const url = URL.createObjectURL(file);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+    }
+
+    const shareStatus = document.getElementById("share-status");
+    document.getElementById("save-html").addEventListener("click", () => {
+      download(gameFile());
+      shareStatus.textContent = "HTML download requested. Attach the downloaded file to a message or email to share it.";
+    });
+    document.getElementById("share-file").addEventListener("click", async () => {
+      const file = gameFile();
+      try {
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: "Rock • Paper • Scissors" });
+          shareStatus.textContent = "File passed to your device’s sharing service.";
+          return;
+        }
+      } catch (error) {
+        if (error.name === "AbortError") {
+          shareStatus.textContent = "Sharing cancelled. You can still use Save HTML.";
+          return;
+        }
+      }
+      download(file);
+      shareStatus.textContent = "This browser could not share the file directly. HTML download requested; attach it to a message or email.";
+    });
+  </script>
+</body>
+</html>

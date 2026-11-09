@@ -13,16 +13,16 @@
 <body>
 <main>
 <header>
-<div class="eyebrow">Code review · release preparation</div>
+<div class="eyebrow">Code review · public release</div>
 <h1><span aria-hidden="true">🪨 📄 ✂️</span><br>Rock • Paper • Scissors</h1>
 <p class="intro">A small Slack game, reviewed before its public release: the bot’s move now stays on the server, rounds belong to their player, and button results use Slack’s message-delivery flow.</p>
 <p class="meta">9 November 2026 · Dependency-free Node.js server · Offline browser demo</p>
-<p><span class="badge">Local review complete</span></p>
-<p class="small">Public repository: <a href="https://github.com/ezzye/Rock_Paper_Scissors_Game2">ezzye/Rock_Paper_Scissors_Game2</a>. This report records local review and checks. Repository publication and deployment are separate from the test results below.</p>
+<p><span class="badge">Published · automated checks passed</span></p>
+<p class="small">Public repository: <a href="https://github.com/ezzye/Rock_Paper_Scissors_Game2">ezzye/Rock_Paper_Scissors_Game2</a>. The reviewed source is public. Slack deployment still needs an HTTPS host and a configured workspace app.</p>
 </header>
 <div class="metrics" aria-label="Verification snapshot">
 <div class="metric"><strong>35 / 35</strong><span>Node tests passed locally on Node 26, using in-process request/response streams.</span></div>
-<div class="metric"><strong>22 + 24</strong><span>Node versions configured in CI, for memory and HTTP transports. CI has not run yet.</span></div>
+<div class="metric"><strong>22 + 24</strong><span>Both Node versions passed CI with in-process and real HTTP transports.</span></div>
 <div class="metric"><strong>0</strong><span>Runtime dependencies. The browser demo also needs no network assets.</span></div>
 </div>
 <section aria-labelledby="findings"><h2 id="findings">What the review changed</h2>
@@ -37,8 +37,8 @@
 <tr><td>Missing tests, docs and accessibility</td><td>No automated suite; setup and operational limits were incomplete; browser results lacked live announcements.</td><td>Regression tests, CI configuration, setup notes and limits; visible focus, live results, reduced-motion support and HTML save/share controls.</td></tr>
 </tbody></table></div></section>
 <section aria-labelledby="evidence"><h2 id="evidence">Evidence and remaining checks</h2><div class="notes">
-<article class="note"><h3>Local checks passed</h3><p>All 35 Node tests passed on Node 26. They cover game outcomes, signature checks, move secrecy, ownership, expiry, single use, malformed requests, body limits and delivery failures.</p><p>The test transport uses real Node request/response streams in process. A local socket listener was blocked by the execution environment, so local HTTP socket tests remain unverified.</p></article>
-<article class="note"><h3>Checks still required</h3><p>No live Slack workspace installation or end-to-end message delivery has been tested. CI is configured for Node 22 and 24 with both memory and HTTP transports, but has not run at the time of writing.</p><p>Browser game and save/share branches passed JavaScript VM checks. Browser file-URL policy blocked opening the demo for visual and actual offline-download checks; those checks remain unverified.</p></article>
+<article class="note"><h3>Local checks passed</h3><p>All 35 Node tests passed on Node 26. They cover game outcomes, signature checks, move secrecy, ownership, expiry, single use, malformed requests, body limits and delivery failures.</p><p>The test transport uses real Node request/response streams in process. A local socket listener was blocked by the execution environment, so the real HTTP transport was verified in GitHub Actions instead.</p></article>
+<article class="note"><h3>Checks still required</h3><p>GitHub Actions passed on Node 22 and 24, with all 35 tests passing in both memory and HTTP modes. <a href="https://github.com/ezzye/Rock_Paper_Scissors_Game2/actions/runs/42686971170">View the successful test run</a>. No live Slack workspace installation or end-to-end message delivery has been tested.</p><p>Browser game and save/share branches passed JavaScript VM checks. Browser file-URL policy blocked opening the demo for visual and actual offline-download checks; those checks remain unverified.</p></article>
 </div></section>
 <section aria-labelledby="operations"><h2 id="operations">Run it as a small, single-process app</h2><p>Pending rounds live in memory for ten minutes, with a maximum of 10,000. Restarting invalidates them. Run one process; multiple instances need shared state or suitable routing.</p><p>A played round is consumed before its message update is delivered. If delivery fails, start again with <code>/rps</code>. The game has no persistent Slack scores and assumes the server chooses fairly.</p></section>
 <section aria-labelledby="sources"><h2 id="sources">Slack references</h2><ul class="sources"><li><a href="https://docs.slack.dev/authentication/verifying-requests-from-slack/">Verifying requests from Slack</a> — signing secret, raw-body verification and timestamp checks.</li><li><a href="https://docs.slack.dev/interactivity/handling-user-interaction/">Handling user interaction</a> — acknowledgement and response-URL message updates.</li></ul></section>
